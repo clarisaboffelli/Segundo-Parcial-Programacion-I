@@ -24,15 +24,15 @@ def menu_secundario():
 # ============================================================= #
 # FUNCIONES DE VALIDACION DE INGRESO DE DATOS
 # ============================================================= #
-# Se define la funcion validar_opcion que valida que el usuario ingrese un numero correspondiente al menu principal.
-def validar_opcion():
+# Se define la funcion validar_opcion que valida que el usuario ingrese un numero correspondiente al menu principal y secundario.
+def validar_opcion(minimo_vo,maximo_vo):
     while True:
         try:
             opcion_vo = int(input("Ingrese una opción: "))
-            if opcion_vo in [1,2,3,4,5,6,7]:
+            if minimo_vo <= opcion_vo <= maximo_vo:
                 return opcion_vo
             else:
-                print("Solo se permite el ingreso de los números 1 a 7")
+                print(f"Solo se permite el ingreso de los números {minimo_vo} a {maximo_vo}")
         except ValueError:
             print("Ingrese el valor númerico correspondiente a la acción detallada en el menú.")
         except Exception as e:
@@ -46,5 +46,5 @@ def validar_opcion():
 # ============================================================= #
 
 menu_principal()
-opcion = validar_opcion()
+opcion = validar_opcion(1,7)
 
