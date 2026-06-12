@@ -142,8 +142,7 @@ def cantidad_tipos_herramientas(inventario_cth):
         int: Número entero de tipos de herramientas a incorporar al stock.
     """
     if not validar_inventario_vacio(inventario_cth):
-        print("\nSe han registrado herramientas en el inventario previamente.")
-        print("Para agregar nuevas herramientas ingrese en la opción 5.")
+        print("\nSe han registrado herramientas en el inventario previamente.\nPara agregar nuevas herramientas ingrese en la opción 5. ALTA DE NUEVO PRODUCTO del menú")
 
     while validar_inventario_vacio(inventario_cth):
         try:
@@ -161,8 +160,6 @@ def cantidad_tipos_herramientas(inventario_cth):
             Por favor, tome nota del error y comuniquese con el servicio de soporte de la aplicación.
             Lamentamos las molestias ocasionadas.""")
 
-        print("\nSe han registrado herramientas en el inventario previamente")
-        print("Para agregar nuevas herramientas ingrese en la opción 5. ALTA DE NUEVO PRODUCTO del menú")
 
 # Se define la funcion registrar_tipos_herramientas(inventario_rth)
 
@@ -180,10 +177,10 @@ def registrar_tipos_herramientas(inventario_rth,tipos_herramientas_rth):
     # Solicitar nombre y cantidad de herramientas en un ciclo for que itera la cantidad de veces establecida en la variable tipos_herramientas.
     for i in range(tipos_herramientas_rth):
         while True:
+            herramienta = input(f"\nIngrese el nombre de la herramienta Nro. {i+1}: ").strip().upper()
+            if not validar_herramienta_unica(herramienta, inventario_rth):
+                continue
             try:
-                herramienta = input(f"\nIngrese el nombre de la herramienta Nro. {i+1}: ").upper()
-                if not validar_herramienta_unica(herramienta, inventario_rth):
-                    continue
                 cantidad = int(input(f"Ingrese la cantidad de la herramienta {herramienta}: "))
                 if cantidad <= 0:
                     print("\nIngreso inválido. La cantidad debe ser un número entero positivo.")
@@ -208,11 +205,70 @@ def mostrar_inventario(inventario_mi):
         inventario_mi (lista): listado de diccionarios con el formato herramienta:cantidad.
     """
     if validar_inventario_vacio(inventario_mi):
-        print("\nEl inventario está vacío.")
+        print("""\nNo se registraron herramientas en el inventario.\nPara registrar herramientas, ingrese en la opción 1. CARGA DE HERRAMIENTAS CON EXISTENCIAS INICIALES del menú principal.""")
     else:
         for item in inventario_mi:
             for herramienta, cantidad in item.items():
                 print(f" {herramienta:<20} {cantidad:>5} unidad/es")
+
+# Se define una función que busque que una herramienta en el inventario.
+
+def buscar_herramienta(inventario_bh):
+    """
+    Permite al usuario ingresar el nombre de una herramienta y visualizar sus existencias, siempre se haya validado la presencia de elementos en el inventario.
+    
+    Parámetro:
+        inventario_bh (lista): listado de diccionarios con el formato herramienta:cantidad.
+    """
+    if validar_inventario_vacio(inventario_bh):
+        print("""\nNo se registraron herramientas en el inventario.\nPara registrar herramientas, ingrese en la opción 1. CARGA DE HERRAMIENTAS CON EXISTENCIAS INICIALES del menú principal.""")
+    else:
+        print("\nBúsqueda de herramientas por nombre.\nPara finalizar la búsqueda, ingrese *.")
+        print()
+        while True:
+            herramienta_bh = input("Ingrese el nombre de la herramienta: ").strip().upper()
+            if herramienta_bh == "*":
+                break
+            elif not any(herramienta_bh in item for item in inventario_bh):
+                print(f"La herramienta {herramienta_bh} no se encuentra registrada en el inventario.")
+            else: 
+                for item in inventario_bh:
+                    if herramienta_bh in item:
+                        print(f"\n {herramienta_bh:<20} {item[herramienta_bh]:>5} unidad/es")
+
+
+# Se define una función que muestra las herramientas cuya cantidad es igual a 0.
+
+def reporte_agotados(inventario_ra):
+    """
+    Permite al usuario visualizar el listado de las herramientas cuyas existencias son igual a 0, siempre que se haya validado la presencia de elementos en el inventario.
+    
+    Parámetro:
+        inventario_ra (lista): listado de diccionarios con el formatio herramienta:cantidad.
+        """
+    
+    if validar_inventario_vacio(inventario_ra):
+        print("""\nNo se registraron herramientas en el inventario.\nPara registrar herramientas, ingrese en la opción 1. CARGA DE HERRAMIENTAS CON EXISTENCIAS INICIALES del menú principal.""")
+    else:
+        # Creo un listado que contendrá las herramientas sin existencias en el inventario, y otra lista que contiene aquellas herramientas que estan por agotarse.
+        agotados_ra = [] 
+        ultima_unidad_ra = []   
+        for item in inventario_ra:
+            for herramienta, cantidad in item.items():
+                if cantidad == 0:
+                    agotados_ra.append(herramienta)
+                elif cantidad == 1:
+                    ultima_unidad_ra.append(herramienta)
+        if not agotados_ra:
+            print("\nNo hay herramientas sin stock en el inventario.")
+        if agotados_ra:
+            print("\nListado de herramientas sin stock en el inventario:")
+            for herramienta in agotados_ra:
+                print(f" {herramienta}")
+        if ultima_unidad_ra:
+            print("\n¡Atención! Solo queda 1 unidad en stock de las siguientes herramientas:")  
+            for herramienta in ultima_unidad_ra:
+                print(f" {herramienta}")
 
 # ============================================================= #
 # PROGRAMA PRINCIPAL
@@ -246,14 +302,23 @@ while run_menu:
         case 2: 
             print("\nOpción 2: VISUALIZACION DE INVENTARIO")
 
-            # Imprimo un listado del inventario.
+            # Imprimo un listado del inventario llamando a la funcion mostrar_inventario()
             mostrar_inventario(inventario)
+
         case 3:
             print("\nOpción 3: CONSULTA DE STOCK")
+
+            # Solicito una herramienta al usuario y muestro sus existencias.
+            buscar_herramienta(inventario)
+
         case 4:
             print("\nOpción 4: REPORTE DE AGOTADOS")
+            # Imprimo un listado de las herramientas agotadas llamando a la funcion reporte_agotados()
+            reporte_agotados(inventario)
+
         case 5:
             print("\nOpción 5: ALTA DE NUEVO PRODUCTO")
+
         case 6:
             print("\nOpción 6: ACTUALIZACION DE STOCK (VENTA / INGRESO)")
             # Se establece la variable run_menu_secundario para evitar el uso de break en la opción 3 de retorno al menú principal.
