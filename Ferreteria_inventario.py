@@ -82,6 +82,51 @@ def validar_opcion(minimo_vo,maximo_vo):
             Por favor, tome nota del error y comuniquese con el servicio de soporte de la aplicación.
             Lamentamos las molestias ocasionadas.""")
 
+
+# Se define la funcion valdar_inventario_vacio que valida que el inventario se encuentre vacio para permitir el acceso a las distintas funcionalidades del menú principal.
+
+def validar_inventario_vacio(inventario_viv):
+    """
+    Comprueba si el listado inventario se contiene o no elementos (una lista vacia corresponde a False). 
+    Si no contiene elementos devuelve True, si contiene, devuelve False.
+    
+    Parámetro:
+        inventario_viv: listado de diccionarios con el formato herramienta:cantidad
+
+    Retorna:
+        Booleano: True o False
+    """
+    if not inventario_viv:
+        return True
+    else:
+        print("\nSe han registrado herramientas en el inventario previamente")
+        print("Para agregar nuevas herramientas ingrese en la opción 5. ALTA DE NUEVO PRODUCTO del menú")
+        return False
+        
+# Se define una funcion que valide que una herramienta esta presente en el listado.
+
+def validar_herramienta_unica(herramienta_vhu,inventario_vhu):
+    """
+    Comprueba si la herramienta ingresada en la variable herramienta se encuentra en el listado inventario.
+    
+    Parámetros:
+        herramienta_vhu (str): herramienta a ingresar al listado inventario por primera vez.
+        inventario_vhu (lista): listado de herramientas previamente registradas por el usuario.
+    
+    Retorna:
+        Booleano True: si la herramienta no se encuentra en la lista.
+        Booleano False: si la herramienta se encuentra en la lista.
+    """
+    # Creo un listado de las claves de los diccionarios dentro de la lista inventario.
+    herramientas_registradas = [list(item.keys())[0] for item in inventario_vhu]
+    # Compruebo la presencia de la herramienta a ingresar en el listado previo.
+    if herramienta_vhu in herramientas_registradas:
+        print(f"\nLa herramienta {herramienta_vhu} ya fue registrada en el inventario. Proceda con el ingreso de una nueva herramienta.")
+        return False
+    else:
+        return True
+
+
 # ============================================================= #
 # FUNCIONES OPERATIVAS
 # ============================================================= #
@@ -89,14 +134,15 @@ def validar_opcion(minimo_vo,maximo_vo):
 # Se define la función cantidad_tipos_herramientas para que el usuario ingrese el número de tipos de herramientas que quiere ingresar en el stock inicial.
 # Se limita a 500, para evitar que el usuario ingrese por error numeros muy altos que bloqueen el programa.
 
-def cantidad_tipos_herramientas():
+def cantidad_tipos_herramientas(inventario_cth):
     """
     Permite al usuario ingresar la cantidad de tipos de herramientas que compondrán el stock inicial de la ferretería, siempre que sea un número ente 1 y 1000.
+    Valida que el listado inventario se encuentre vacio con la funcion validar_inventario_vacio.
 
     Retorna:
         int: Número entero de tipos de herramientas a incorporar al stock.
     """
-    while True:
+    while validar_inventario_vacio(inventario_cth):
         try:
             tipos_cth = int(input("\nIngrese el número de herramientas que quiere registrar en el inventario: "))
             if tipos_cth <= 0:
@@ -111,6 +157,43 @@ def cantidad_tipos_herramientas():
             print(f"""Ocurrió el siguiente error: {type(e).__name__}. 
             Por favor, tome nota del error y comuniquese con el servicio de soporte de la aplicación.
             Lamentamos las molestias ocasionadas.""")
+
+# Se define la funcion registrar_tipos_herramientas(inventario_rth)
+
+def registrar_tipos_herramientas(inventario_rth,tipos_herramientas_rth):
+    """
+    Permite al usuario cargar el nombre de la herramienta y la cantidad que compone el stock inicial de dicha herramienta.
+    Valida que la herramienta no se encuentre ya registrada con la funcion validar_herramienta_unica.
+    
+    Parametro:
+        inventario_rth: listado de diccionarios con el formato herramienta:cantidad
+    
+    Retorna:
+        lista: inventario_rth
+    """
+    if not validar_inventario_vacio(inventario_rth):
+            return inventario_rth
+    # Solicitar nombre y cantidad de herramientas en un ciclo for que itera la cantidad de veces establecida en la variable tipos_herramientas.
+    for i in range(tipos_herramientas_rth):
+        while True:
+            try:
+                herramienta = input(f"\nIngrese el nombre de la herramienta Nro. {i+1}: ").upper()
+                if not validar_herramienta_unica(herramienta, inventario_rth):
+                    continue
+                cantidad = int(input(f"Ingrese la cantidad de la herramienta {herramienta}: "))
+                if cantidad <= 0:
+                    print("\nIngreso inválido. La cantidad debe ser un número entero positivo.")
+                else:
+                    inventario_rth.append({herramienta: cantidad})
+                    break
+            except ValueError:
+                    print("\nIngreso inválido. La cantidad debe ser un número entero positivo.")
+            except Exception as e:
+                    print(f"""Ocurrió el siguiente error: {type(e).__name__}. 
+                    Por favor, tome nota del error y comuniquese con el servicio de soporte de la aplicación.
+                    Lamentamos las molestias ocasionadas.""")
+    return inventario_rth
+
 
 # ============================================================= #
 # PROGRAMA PRINCIPAL
@@ -127,18 +210,28 @@ while run_menu:
     opcion_menu_principal = menu_principal()
     match opcion_menu_principal:
         case 1:
-            print("\nCARGA DE HERRAMIENTAS CON EXISTENCIAS INICIALES")
-            tipos_herramientas = cantidad_tipos_herramientas()
+            print("\nOpción 1: CARGA DE HERRAMIENTAS CON EXISTENCIAS INICIALES")
+
+            # Solicito la cantidad de tipos de herramientas a ingresar en las existencias iniciales con la función cantidad_tipos_herramientas().
+            # Almaceno el valor en la variable tipos_herramientas que será empleada en funciones posteriores.
+            tipos_herramientas = cantidad_tipos_herramientas(inventario)
+
+            # Muestro un mensaje de confirmación para el usuario.
+            print(f"\nSe registrarán {tipos_herramientas} tipos de herramientas en las existencias iniciales.")
+
+            # Permito al usuario cargar la cantidad tipos_herramientas con la funcion registrar_tipos_herramientas.
+            inventario = registrar_tipos_herramientas(inventario, tipos_herramientas)
+            print(inventario)
         case 2: 
-            print("\nVISUALIZACION DE INVENTARIO")
+            print("\nOpción 2: VISUALIZACION DE INVENTARIO")
         case 3:
-            print("\nCONSULTA DE STOCK")
+            print("\nOpción 3: CONSULTA DE STOCK")
         case 4:
-            print("\nREPORTE DE AGOTADOS")
+            print("\nOpción 4: REPORTE DE AGOTADOS")
         case 5:
-            print("\nALTA DE NUEVO PRODUCTO")
+            print("\nOpción 5: ALTA DE NUEVO PRODUCTO")
         case 6:
-            print("\nACTUALIZACION DE STOCK (VENTA / INGRESO)")
+            print("\nOpción 6: ACTUALIZACION DE STOCK (VENTA / INGRESO)")
             # Se establece la variable run_menu_secundario para evitar el uso de break en la opción 3 de retorno al menú principal.
             run_menu_secundario = True
             while run_menu_secundario:
@@ -152,7 +245,7 @@ while run_menu:
                         print("\nVOLVER AL MENU PRINCIPAL")
                         run_menu_secundario = False
         case 7:
-            print("\nSALIR")
+            print("\nOpción 7: SALIR")
             run_menu = False
 
 
