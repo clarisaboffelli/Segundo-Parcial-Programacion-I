@@ -226,7 +226,7 @@ def buscar_herramienta(inventario_bh):
         print("\nBúsqueda de herramientas por nombre.\nPara finalizar la búsqueda, ingrese *.")
         print()
         while True:
-            herramienta_bh = input("Ingrese el nombre de la herramienta: ").strip().upper()
+            herramienta_bh = input("\nIngrese el nombre de la herramienta: ").strip().upper()
             if herramienta_bh == "*":
                 break
             elif not any(herramienta_bh in item for item in inventario_bh):
@@ -234,7 +234,7 @@ def buscar_herramienta(inventario_bh):
             else: 
                 for item in inventario_bh:
                     if herramienta_bh in item:
-                        print(f"\n {herramienta_bh:<20} {item[herramienta_bh]:>5} unidad/es")
+                        print(f"{herramienta_bh:<20} {item[herramienta_bh]:>5} unidad/es")
 
 
 # Se define una función que muestra las herramientas cuya cantidad es igual a 0.
@@ -244,8 +244,8 @@ def reporte_agotados(inventario_ra):
     Permite al usuario visualizar el listado de las herramientas cuyas existencias son igual a 0, siempre que se haya validado la presencia de elementos en el inventario.
     
     Parámetro:
-        inventario_ra (lista): listado de diccionarios con el formatio herramienta:cantidad.
-        """
+        inventario_ra (lista): listado de diccionarios con el formato herramienta:cantidad.
+    """
     
     if validar_inventario_vacio(inventario_ra):
         print("""\nNo se registraron herramientas en el inventario.\nPara registrar herramientas, ingrese en la opción 1. CARGA DE HERRAMIENTAS CON EXISTENCIAS INICIALES del menú principal.""")
@@ -269,6 +269,40 @@ def reporte_agotados(inventario_ra):
             print("\n¡Atención! Solo queda 1 unidad en stock de las siguientes herramientas:")  
             for herramienta in ultima_unidad_ra:
                 print(f" {herramienta}")
+
+# Se define una funcion para ingresar una nueva herramienta al inventario ya existente.
+
+def alta_herramienta(inventario_ah):
+    """
+    Permite al usuario ingresar una nueva herramienta al inventario, validando que no exista previamente en el listado inventario.
+    
+    Parámetro:
+        inventario_ra (lista): listado de diccionarios con el formato herramienta:cantidad.
+
+    Retorna:
+        lista: inventario_ah actualizado.
+    """
+    if validar_inventario_vacio(inventario_ah):
+        print("""\nNo se registraron herramientas en el inventario.\nPara registrar herramientas, ingrese en la opción 1. CARGA DE HERRAMIENTAS CON EXISTENCIAS INICIALES del menú principal.""")
+    while True:
+        herramienta_ah = input("\nIngrese el nombre de la nueva herramienta: ").strip().upper()
+        if not validar_herramienta_unica(herramienta_ah, inventario_ah):
+            continue
+        try:
+            cantidad_ah = int(input(f"Ingrese la cantidad de la herramienta {herramienta_ah}: "))
+            if cantidad_ah <= 0:
+                print("\nIngreso inválido. La cantidad debe ser un número entero positivo.")
+            else:
+                inventario_ah.append({herramienta_ah: cantidad_ah})
+                print(f"\nSe registró la herramienta {herramienta_ah} con {cantidad_ah} unidad/es.")
+                break
+        except ValueError:
+            print("\nIngreso inválido. La cantidad debe ser un número entero positivo.")
+        except Exception as e:
+            print(f"""Ocurrió el siguiente error: {type(e).__name__}. 
+            Por favor, tome nota del error y comuniquese con el servicio de soporte de la aplicación.
+            Lamentamos las molestias ocasionadas.""")
+    return inventario_ah
 
 # ============================================================= #
 # PROGRAMA PRINCIPAL
@@ -318,6 +352,7 @@ while run_menu:
 
         case 5:
             print("\nOpción 5: ALTA DE NUEVO PRODUCTO")
+            inventario = alta_herramienta(inventario)
 
         case 6:
             print("\nOpción 6: ACTUALIZACION DE STOCK (VENTA / INGRESO)")
